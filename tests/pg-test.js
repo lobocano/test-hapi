@@ -21,22 +21,22 @@ pg.connect(conString, function (err, client, done) {
         return true;
     };
     if (handleError(err)) return;
-     client.query('INSERT INTO users (username, email, password, displayname) VALUES ($1,$2,$3,$4)',
-     ['user1','user1@lobo-cano.ru','12345678','Test User1'],
-     function(err,result){
-     if(handleError(err)) return;
-     console.log(result);
-     done();
-     return;
-     });
-/*
-    client.query('INSERT INTO comments (owner, message, posttime) VALUES ($1,$2,$3)',
-        ['user1', 'kajhfkjhkfjhkajhfkjhakjhfkjhakfh', new Date()],
+    client.query('INSERT INTO users (username, email, password, displayname) VALUES ($1,$2,$3,$4)',
+        ['user1', 'user1@lobo-cano.ru', '12345678', 'Test User1'],
         function (err, result) {
             if (handleError(err)) return;
             console.log(result);
             done();
             return;
         });
-*/
+    /*
+     client.query('INSERT INTO comments (owner, message, posttime) VALUES ($1,$2,$3)',
+     ['user1', 'kajhfkjhkfjhkajhfkjhakjhfkjhakfh', new Date()],
+     function (err, result) {
+     if (handleError(err)) return;
+     console.log(result);
+     done();
+     return;
+     });
+     */
 });

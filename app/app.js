@@ -2,7 +2,8 @@
  * Created by pablo on 15.03.16.
  */
 angular.module('testHapi', [
-    'ngRoute'
+    'ngRoute',
+    'ngMaterial'
 ]).config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     console.log('config');
     $locationProvider.html5Mode(true);
@@ -14,10 +15,12 @@ angular.module('testHapi', [
             templateUrl: 'home.html'
         })
         .when('/login',{
-            templateUrl: 'views/login.html'
+            templateUrl: 'components/login/login.html',
+            controller: 'LoginCtrl'
         })
         .when('/register',{
-            templateUrl: 'views/register.html'
+            templateUrl: 'components/register/register.html',
+            controller: 'RegisterCtrl'
         })
         .otherwise({
             redirectTo: '/'
