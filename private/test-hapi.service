@@ -1,0 +1,17 @@
+[Unit]
+Description=test hapi service
+After=network.target
+
+[Service]
+StandardOutput=syslog
+SyslogIdentifier=test-hapi
+WorkingDirectory=/home/pablo/web/test-hapi
+ExecStart=/usr/local/bin/node server.js
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+User=pablo
+
+[Install]
+WantedBy=multi-user.target
+Alias=test-hapi.service

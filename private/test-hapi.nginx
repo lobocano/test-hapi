@@ -1,0 +1,10 @@
+server {
+    listen 80;
+
+    server_name hapi.lobo-cano.ru;
+
+    access_log /var/log/nginx/lobocano.eu.access.log;
+    location / {
+        proxy_pass    http://127.0.0.1:3041/;
+    }
+}
