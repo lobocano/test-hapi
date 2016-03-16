@@ -6,6 +6,7 @@
 const Hapi = require('hapi');
 const Good = require('good');
 const Path = require('path');
+const Joi = require('joi');
 var pg = require('pg');
 var conString = "postgres://hapi:mensajero@localhost/testhapi";
 
@@ -41,6 +42,107 @@ server.route({
     path: '/auth/register',
     handler: regUser
 });
+
+server.route({
+    method: 'POST',
+    path: '/auth/login',
+    config:{
+        auth: false,
+        validate: {
+            payload: {
+                username: Joi.string().min(3).max(20).required(),
+                password: Joi.string().min(2).max(20).required()
+            }
+        },
+        handler: function (request, reply) {
+            console.log(request.payload);
+            var sql = 'select * from users where username = $1';
+            querySql(sql, [request.payload.username], (err, result)=> {
+                if (err) {
+                    console.log(err);
+                    reply('ERROR');
+                }
+                else {
+                    if (result.rows.length == 0) {
+                        reply('user not found');
+                    }
+                    else {
+                        var usr = result.rows[0];
+                        console.log(usr);
+                        if (request.payload.password == usr.password) {
+                            var minUserData = {
+                                username: usr.username,
+                                email: usr.email,
+                                displayname: usr.displayname
+                            };
+                            console.log(minUserData);
+                            request.cookieAuth.set(minUserData);
+                            reply('OK');
+                        }
+                        else reply('Incorrect password');
+
+                    }
+                }
+
+            });
+            //var cm = {username: request.payload.username, password: request.payload.password};
+            //reply(cm);
+        }
+
+    }
+});
+
+var staticConfig = {
+    auth: false,
+    handler: {
+        directory: {
+            path: Path.join(__dirname, '/app'),
+            index: true
+        }
+    }
+};
+
+
+server.register(require('inert'), (err) => {
+
+    if (err) {
+        throw err;
+    }
+    server.route({method: 'GET', path: '/{somethingss*}', config: staticConfig});
+
+});
+server.register([
+    {
+        register: require('hapi-auth-cookie')
+    }
+], function (err) {
+    if (err) {
+        console.error('Failed to load a plugin:', err);
+        throw err;
+    }
+
+    // Set our server authentication strategy
+    server.auth.strategy('standard', 'cookie', {
+        password: 'ronmojitoronmojitoronmojitoronmojito', // cookie secret
+        cookie: 'test-hapi-cookie', // Cookie name
+        isSecure: false, // required for non-https applications
+        ttl: 60 * 60 * 1000 // Set session to 1 hour
+    });
+
+});
+/*
+server.auth.default({
+    strategy: 'standard'
+});
+*/
+server.start((err) => {
+
+    if (err) {
+        throw err;
+    }
+    console.log('Server running at:', server.info.uri);
+});
+
 function querySql(sql, params, callback) {
     pg.connect(conString, function (err, client, done) {
         if (err) {
@@ -53,8 +155,8 @@ function querySql(sql, params, callback) {
                     console.log(err);
                     callback('insert error ' + err);
                 }
-                else{
-                    callback(null,result);
+                else {
+                    callback(null, result);
                 }
                 done();
 
@@ -96,62 +198,5 @@ function regUser(request, reply) {
     });
 }
 
-server.route({
-    method: 'POST',
-    path: '/auth/login',
-    handler: function (request, reply) {
-        console.log(request.payload);
-        var sql = 'select * from users where username = $1';
-        querySql(sql,[request.payload.username],(err,result)=>{
-            if(err) {
-                console.log(err);
-                reply('ERROR');
-            }
-            else{
-                if(result.rows.length == 0){
-                    reply('user not found');
-                }
-                else{
-                    var usr = result.rows[0];
-                    console.log(usr);
-                    if(request.payload.password == usr.password){
-                        reply('OK');
-                    }
-                    else reply('Incorrect password');
-
-                }
-            }
-
-        });
-        //var cm = {username: request.payload.username, password: request.payload.password};
-        //reply(cm);
-    }
-});
-
-var staticConfig = {
-    handler: {
-        directory: {
-            path: Path.join(__dirname, '/app'),
-            index: true
-        }
-    }
-};
-
-
-server.register(require('inert'), (err) => {
-
-    if (err) {
-        throw err;
-    }
-    server.route({method: 'GET', path: '/{somethingss*}', config: staticConfig});
-
-});
-server.start((err) => {
-
-    if (err) {
-        throw err;
-    }
-    console.log('Server running at:', server.info.uri);
-});
 
 //curl -X POST -H "Content-Type: application/json" -d '{ "username": "lksjkflksjf","password": "123456" }' -i http://comments.lobo-cano.ru/api/login
