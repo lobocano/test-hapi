@@ -2,17 +2,17 @@
  * Created by pablo on 16.03.16.
  */
 angular.module('testHapi')
-    .controller('HomeCtrl',['$scope','$location','$http','$cookies','localStorageService', function ($scope, $location, $http, $cookies, localStorageService) {
+    .controller('HomeCtrl',['$scope','$location','$http','AuthService', function ($scope, $location, $http,AuthService) {
 
         $scope.title='Home';
-
+        $scope.username = function(){
+            return AuthService.user() ? AuthService.user().displayname : '';
+        };
+        console.log('$scope.username',$scope.username());
+        $scope.AuthService = AuthService;
         $scope.test=()=>{
-            var usr = $cookies.get('test-hapi-cookie');
-            console.log(usr);
-            //console.log(document.cookie);
-            usr =  localStorageService.get('user');
-            console.log(usr);
-
+            console.log('stored user',$scope.AuthService.user(), $scope.AuthService.isAuthenticated(), $scope.username());
+            $scope.$apply();
         };
         $scope.logout=()=>{
             console.log('Logout');
@@ -20,12 +20,17 @@ angular.module('testHapi')
                 .error(function(err){console.log('error ',err)})
                 .then(function(result) {
                     console.log(result.data);
-                    localStorageService.remove('user');
-                    alert(result.data);
+                    $scope.AuthService.removeUser();
+                    //alert(result.data);
 
                 });
 
-        }
+        };
 
+        $scope.message='';
+        $scope.messages = [];
+        $scope.addMsg = ()=>{
+            console.log('$scope.addMsg');
+        };
 
     }]);

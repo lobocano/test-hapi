@@ -2,7 +2,7 @@
  * Created by pablo on 15.03.16.
  */
 angular.module('testHapi')
-    .controller('LoginCtrl', ['$scope', '$location', '$http', 'localStorageService', function ($scope, $location, $http, localStorageService) {
+    .controller('LoginCtrl', ['$scope', '$location', '$http', 'AuthService', function ($scope, $location, $http, AuthService) {
 
         $scope.title = 'Login form';
         $scope.user = {
@@ -20,7 +20,7 @@ angular.module('testHapi')
                     console.log(result.data);
                     if (result.data.status && result.data.status == 'OK') {
                         console.log(result.data.user);
-                        localStorageService.set('user', result.data.user);
+                        AuthService.setUser(result.data.user);
                         $location.path('/');
                     }
                     else alert(result.data);

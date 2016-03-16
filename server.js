@@ -68,6 +68,7 @@ server.route({
                         console.log(usr);
                         if (request.payload.password == usr.password) {
                             var minUserData = {
+                                userid: result.rows[0].userid,
                                 email: usr.email,
                                 displayname: usr.displayname
                             };
@@ -221,16 +222,25 @@ function execSql(sql, params, callback) {
 function regUser(request, reply) {
     console.log(request.payload);
     var sql = 'INSERT INTO users (email, password, displayname) VALUES ($1,$2,$3)';
-    var params = [request.payload.email, request.payload.password, request.payload.displayName];
+    var params = [request.payload.email, request.payload.password, request.payload.displayname];
     execSql(sql, params, (msg)=> {
         if(msg == 'OK'){
-            var minUserData = {
-                email: request.payload.email,
-                displayname: request.payload.displayName
-            };
-            request.cookieAuth.set({status:'OK', user: minUserData});
+            querySql('select userid from users where email = $1',[request.payload.email], (err,data)=>{
+                console.log(err,data.rows[0]);
+                var minUserData = {
+                    userid: data.rows[0].userid,
+                    email: request.payload.email,
+                    displayname: request.payload.displayname
+                };
+                request.cookieAuth.set(minUserData);
+                console.log('reguser',minUserData);
+                reply({status:'OK', user: minUserData});
+            });
         }
-        reply(msg);
+        else{
+            reply(msg);
+        }
+
     });
 }
 
