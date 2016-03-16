@@ -39,6 +39,76 @@ server.route({
 
     }
 });
+server.route({
+    method: 'POST',
+    path: '/api/message',
+    config:{
+        validate: {
+            payload: {
+                message: Joi.string().min(1).max(200).required(),
+                owner: Joi.number().required(),
+                parent: Joi.any().optional()
+            }
+        },
+        handler: (request, reply)=>{
+
+            var sql = 'insert into comments (posttime, owner, message, parent) values($1,$2,$3,$4)';
+            var params = [new Date(),request.payload.owner,request.payload.message,request.payload.parent];
+            execSql(sql,params,(msg)=>{
+                console.log(request.payload, msg);
+                reply(msg);
+            });
+
+        }
+
+    }
+});
+server.route({
+    method: 'PUT',
+    path: '/api/message',
+    config:{
+        validate: {
+            payload: {
+                message: Joi.string().min(1).max(200).required(),
+                commentid: Joi.number().required()
+            }
+        },
+        handler: (request, reply)=>{
+
+            var sql = 'update comments set message = $1 where commentid = $2';
+            var params = [request.payload.message,request.payload.commentid];
+            execSql(sql,params,(msg)=>{
+                console.log(request.payload, msg);
+                reply(msg);
+            });
+
+        }
+
+    }
+});
+
+server.route({
+    method: 'GET',
+    path: '/api/messages',
+    config:{
+        handler: (request, reply)=>{
+
+            var sql = 'select c.*, u.displayname from comments c join users u on c.owner = u.userid order by posttime desc';
+            querySql(sql,null,(err, data)=>{
+                if(err){
+                    console.log(err);
+                    reply({error:err,data:null});
+                }
+                else{
+                    reply({error:null, data:data.rows});
+                }
+
+            });
+
+        }
+
+    }
+});
 
 server.route({
     method: 'POST',
@@ -65,7 +135,7 @@ server.route({
                     }
                     else {
                         var usr = result.rows[0];
-                        console.log(usr);
+                        //console.log(usr);
                         if (request.payload.password == usr.password) {
                             var minUserData = {
                                 userid: result.rows[0].userid,
@@ -73,7 +143,7 @@ server.route({
                                 displayname: usr.displayname
                             };
                             request.cookieAuth.set(minUserData);
-                            console.log(minUserData);
+                            //console.log(minUserData);
                             reply({status:'OK', user: minUserData});
                         }
                         else reply('Incorrect password');
@@ -135,7 +205,7 @@ server.route({
     config: {
         auth: {strategy: 'standard',mode:'try'},
         handler: function(request, reply) {
-            console.log(request.auth);
+            //console.log(request.auth);
             if (request.auth.isAuthenticated) {
                 request.cookieAuth.clear();
                 return reply('Logout Successful!');
@@ -220,20 +290,20 @@ function execSql(sql, params, callback) {
 }
 
 function regUser(request, reply) {
-    console.log(request.payload);
+    //console.log(request.payload);
     var sql = 'INSERT INTO users (email, password, displayname) VALUES ($1,$2,$3)';
     var params = [request.payload.email, request.payload.password, request.payload.displayname];
     execSql(sql, params, (msg)=> {
         if(msg == 'OK'){
             querySql('select userid from users where email = $1',[request.payload.email], (err,data)=>{
-                console.log(err,data.rows[0]);
+                //console.log(err,data.rows[0]);
                 var minUserData = {
                     userid: data.rows[0].userid,
                     email: request.payload.email,
                     displayname: request.payload.displayname
                 };
                 request.cookieAuth.set(minUserData);
-                console.log('reguser',minUserData);
+                //console.log('reguser',minUserData);
                 reply({status:'OK', user: minUserData});
             });
         }

@@ -1,16 +1,55 @@
 <div layout-padding>
     <md-toolbar class="h30" layout="row">
         <!--<h5 flex="20">Comments</h5>-->
-        <md-button class="h30"  href="/login">Login</md-button>
+        <md-button class="h30"  href="/login"ng-show="!AuthService.isAuthenticated()">Login</md-button>
         <md-button class="h30"  href="/register">Register</md-button>
-        <md-button class="h30"  ng-click="logout()">Logout</md-button>
+        <md-button class="h30"  ng-click="logout()" ng-show="AuthService.isAuthenticated()">Logout</md-button>
+<!--
         <md-button class="h30"  ng-click="test()">Test</md-button>
+-->
+        <div flex></div>
         <h4 style="margin-top: 13px" ng-show="AuthService.isAuthenticated()">Welcome {{username()}}</h4>
     </md-toolbar>
-    <md-content layout="row">
-        <input flex="50" type="test" ng-model="message">
-        <md-button ng-click="addMsg()">Add message</md-button>
-    </md-content>
+    <div ng-switch="mode">
+        <div ng-switch-when="list">
+            <md-content layout="row" ng-show="AuthService.isAuthenticated()">
+                <input flex="50" type="test" ng-model="message">
+                <md-button class="md-raised" ng-click="addMsg()">Add message</md-button>
+            </md-content>
+            <md-content>
+                <ul class="md-list">
+                    <li ng-repeat="msg in messages">
+                        <md-card layout="row">
+                            <div flex="10" layout="column">
+                                <b>{{msg.displayname}}</b>
+                                <b>{{msg.posttime | date:'dd.MM.yy HH:mm:ss'}}</b>
+                            </div>
 
+                            <span flex>{{msg.message}}</span>
+                            <md-button flex="5" ng-show="showEditButton(msg.owner)" ng-click="edit(msg.commentid,msg.message)">Edit</md-button>
+                            <md-button flex="10" ng-show="AuthService.isAuthenticated()" ng-click="edit(msg.commentid,'')">Add comment</md-button>
+                        </md-card>
+                    </li>
+                </ul>
+            </md-content>
+
+        </div>
+        <div ng-switch-when="edit">
+            <md-content layout="row">
+                <div flex="10"></div>
+                <div flex="40">
+                    <textarea class="comment-area" ng-model="comment.message"></textarea>
+                    <div>
+                        <md-button ng-click="save()">Save</md-button>
+                        <md-button ng-click="cancel()">Cancel</md-button>
+
+                    </div>
+
+                </div>
+
+            </md-content>
+        </div>
+
+    </div>
 </div>
 
