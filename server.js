@@ -40,7 +40,19 @@ server.route({
 server.route({
     method: 'POST',
     path: '/auth/register',
-    handler: regUser
+    config:{
+        validate: {
+            payload: {
+                username: Joi.string().min(3).max(20).required(),
+                email: Joi.string().email().required(),
+                displayname: Joi.string().min(1).max(20).required(),
+                password: Joi.string().min(2).max(20).required(),
+                password2: Joi.string().min(2).max(20).required()
+            }
+        },
+        handler: regUser
+
+    }
 });
 
 server.route({
@@ -75,8 +87,8 @@ server.route({
                                 email: usr.email,
                                 displayname: usr.displayname
                             };
-                            console.log(minUserData);
                             request.cookieAuth.set(minUserData);
+                            console.log(minUserData);
                             reply('OK');
                         }
                         else reply('Incorrect password');
@@ -91,6 +103,7 @@ server.route({
 
     }
 });
+
 
 var staticConfig = {
     auth: false,
@@ -129,6 +142,25 @@ server.register([
         ttl: 60 * 60 * 1000 // Set session to 1 hour
     });
 
+});
+server.route({
+    method: 'GET',
+    path: '/auth/logout',
+    config: {
+        auth: {strategy: 'standard',mode:'try'},
+        handler: function(request, reply) {
+            console.log(request.auth);
+            if (request.auth.isAuthenticated) {
+                request.cookieAuth.clear();
+                return reply('Logout Successful!');
+            }
+            else{
+                request.cookieAuth.clear();
+                return reply('Not logged in!');
+            }
+
+        }
+    }
 });
 /*
 server.auth.default({
@@ -194,6 +226,14 @@ function regUser(request, reply) {
     var sql = 'INSERT INTO users (username, email, password, displayname) VALUES ($1,$2,$3,$4)';
     var params = [request.payload.username, request.payload.email, request.payload.password, request.payload.displayName];
     execSql(sql, params, (msg)=> {
+        if(msg == 'OK'){
+            var minUserData = {
+                username: request.payload.username,
+                email: request.payload.email,
+                displayname: request.payload.displayName
+            };
+            request.cookieAuth.set(minUserData);
+        }
         reply(msg);
     });
 }

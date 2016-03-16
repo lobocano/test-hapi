@@ -9,7 +9,8 @@ angular.module('testHapi', [
     $locationProvider.html5Mode(true);
     $routeProvider
         .when('/', {
-            templateUrl: 'home.html'
+            templateUrl: 'home.html',
+            controller: 'HomeCtrl'
         })
         .when('/home', {
             templateUrl: 'home.html'

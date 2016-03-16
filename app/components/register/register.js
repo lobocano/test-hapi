@@ -8,7 +8,7 @@ angular.module('testHapi')
         $scope.user = {
             username:'',
             email:'',
-            displayName:'',
+            displayname:'',
             password:'',
             password2:''
         };
