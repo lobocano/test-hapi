@@ -29,7 +29,6 @@ server.route({
     config:{
         validate: {
             payload: {
-                username: Joi.string().min(3).max(20).required(),
                 email: Joi.string().email().required(),
                 displayname: Joi.string().min(1).max(20).required(),
                 password: Joi.string().min(2).max(20).required(),
@@ -48,14 +47,14 @@ server.route({
         auth: false,
         validate: {
             payload: {
-                username: Joi.string().min(3).max(20).required(),
+                email: Joi.string().email().required(),
                 password: Joi.string().min(2).max(20).required()
             }
         },
         handler: function (request, reply) {
             console.log(request.payload);
-            var sql = 'select * from users where username = $1';
-            querySql(sql, [request.payload.username], (err, result)=> {
+            var sql = 'select * from users where email = $1';
+            querySql(sql, [request.payload.email], (err, result)=> {
                 if (err) {
                     console.log(err);
                     reply('ERROR');
@@ -69,13 +68,12 @@ server.route({
                         console.log(usr);
                         if (request.payload.password == usr.password) {
                             var minUserData = {
-                                username: usr.username,
                                 email: usr.email,
                                 displayname: usr.displayname
                             };
                             request.cookieAuth.set(minUserData);
                             console.log(minUserData);
-                            reply('OK').state('userdata',{username: 'lkajldkjjd'});
+                            reply({status:'OK', user: minUserData});
                         }
                         else reply('Incorrect password');
 
@@ -139,11 +137,11 @@ server.route({
             console.log(request.auth);
             if (request.auth.isAuthenticated) {
                 request.cookieAuth.clear();
-                return reply('Logout Successful!').state('userdata',{});
+                return reply('Logout Successful!');
             }
             else{
                 request.cookieAuth.clear();
-                return reply('Not logged in!').state('userdata',{});
+                return reply('Not logged in!');
             }
 
         }
@@ -222,16 +220,15 @@ function execSql(sql, params, callback) {
 
 function regUser(request, reply) {
     console.log(request.payload);
-    var sql = 'INSERT INTO users (username, email, password, displayname) VALUES ($1,$2,$3,$4)';
-    var params = [request.payload.username, request.payload.email, request.payload.password, request.payload.displayName];
+    var sql = 'INSERT INTO users (email, password, displayname) VALUES ($1,$2,$3)';
+    var params = [request.payload.email, request.payload.password, request.payload.displayName];
     execSql(sql, params, (msg)=> {
         if(msg == 'OK'){
             var minUserData = {
-                username: request.payload.username,
                 email: request.payload.email,
                 displayname: request.payload.displayName
             };
-            request.cookieAuth.set(minUserData);
+            request.cookieAuth.set({status:'OK', user: minUserData});
         }
         reply(msg);
     });

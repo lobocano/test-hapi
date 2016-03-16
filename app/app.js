@@ -4,10 +4,12 @@
 angular.module('testHapi', [
     'ngRoute',
     'ngMaterial',
-    'ngCookies'
-]).config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+    'ngCookies',
+    'LocalStorageModule'
+]).config(['$routeProvider', '$locationProvider','localStorageServiceProvider', function ($routeProvider, $locationProvider, localStorageServiceProvider) {
     console.log('config');
     $locationProvider.html5Mode(true);
+    localStorageServiceProvider.setPrefix('testHapi');
     $routeProvider
         .when('/', {
             templateUrl: 'home.html',

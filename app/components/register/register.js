@@ -2,25 +2,24 @@
  * Created by pablo on 15.03.16.
  */
 angular.module('testHapi')
-    .controller('RegisterCtrl',['$scope','$location','$http', function ($scope,$location,$http) {
+    .controller('RegisterCtrl',['$scope','$location','$http','localStorageService', function ($scope,$location,$http,localStorageService) {
         
         $scope.title='Register form';
         $scope.user = {
-            username:'',
-            email:'',
-            displayname:'',
-            password:'',
-            password2:''
+            email:'test@mail.ru',
+            displayname:'Test',
+            password:'123',
+            password2:'123'
         };
         $scope.register=()=>{
             console.log('Register',$scope.user);
             $http.post('/auth/register', $scope.user)
                 .error(function(err){console.log('error ',err)})
                 .then(function(result) {
-                    if(result.data == 'OK'){
-                        console.log(result);
+                    if (result.data.status && result.data.status == 'OK') {
+                        console.log(result.data.user);
+                        localStorageService.set('user', result.data.user);
                         $location.path('/');
-
                     }
                     else {
                         alert(result.data);
