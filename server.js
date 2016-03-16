@@ -14,29 +14,15 @@ var conString = "postgres://hapi:mensajero@localhost/testhapi";
 const server = new Hapi.Server();
 server.connection({port: 3041});
 
-server.route({
-    method: 'GET',
-    path: '/api/users',
-    handler: function (request, reply) {
-        var u = {name: 'qq'};
-        reply(u);
-    }
+server.state('userdata', {
+    ttl: 60 * 60 * 1000,
+    isSecure: false,
+    isHttpOnly: false,
+    encoding: 'base64json',
+    clearInvalid: false, // remove invalid cookies
+    strictHeader: true // don't allow violations of RFC 6265
 });
-/*server.route({
- method: 'GET',
- path: '/api/comments',
- handler: function (request, reply) {
- var cm = {time: new Date()};
- reply(cm);
- }
- });
- server.route({
- method: 'GET',
- path: '/auth/login',
- handler: function (request, reply) {
- reply.file('./public/login.html');
- }
- });*/
+
 server.route({
     method: 'POST',
     path: '/auth/register',
@@ -89,7 +75,7 @@ server.route({
                             };
                             request.cookieAuth.set(minUserData);
                             console.log(minUserData);
-                            reply('OK');
+                            reply('OK').state('userdata',{username: 'lkajldkjjd'});
                         }
                         else reply('Incorrect password');
 
@@ -138,6 +124,7 @@ server.register([
     server.auth.strategy('standard', 'cookie', {
         password: 'ronmojitoronmojitoronmojitoronmojito', // cookie secret
         cookie: 'test-hapi-cookie', // Cookie name
+        isHttpOnly: false,
         isSecure: false, // required for non-https applications
         ttl: 60 * 60 * 1000 // Set session to 1 hour
     });
@@ -152,16 +139,28 @@ server.route({
             console.log(request.auth);
             if (request.auth.isAuthenticated) {
                 request.cookieAuth.clear();
-                return reply('Logout Successful!');
+                return reply('Logout Successful!').state('userdata',{});
             }
             else{
                 request.cookieAuth.clear();
-                return reply('Not logged in!');
+                return reply('Not logged in!').state('userdata',{});
             }
 
         }
     }
 });
+server.route({
+    method: 'GET',
+    path: '/api/user',
+    config:{
+        auth: {strategy: 'standard',mode:'try'},
+        handler: function (request, reply) {
+            var u = {name: 'qq'};
+            reply(u);
+        }
+    }
+});
+
 /*
 server.auth.default({
     strategy: 'standard'

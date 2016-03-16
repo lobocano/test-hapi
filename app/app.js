@@ -3,7 +3,8 @@
  */
 angular.module('testHapi', [
     'ngRoute',
-    'ngMaterial'
+    'ngMaterial',
+    'ngCookies'
 ]).config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     console.log('config');
     $locationProvider.html5Mode(true);

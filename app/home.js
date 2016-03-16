@@ -2,12 +2,14 @@
  * Created by pablo on 16.03.16.
  */
 angular.module('testHapi')
-    .controller('HomeCtrl',['$scope','$location','$http', function ($scope,$location,$http) {
+    .controller('HomeCtrl',['$scope','$location','$http','$cookies', function ($scope, $location, $http, $cookies) {
 
         $scope.title='Home';
 
         $scope.test=()=>{
-            console.log('Test');
+            var usr = $cookies.get('userdata');
+            console.log(usr);
+            console.log(document.cookie);
 
         };
         $scope.logout=()=>{
