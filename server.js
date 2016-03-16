@@ -100,7 +100,8 @@ server.route({
                     reply({error:err,data:null});
                 }
                 else{
-                    reply({error:null, data:data.rows});
+                    reply({error:null, data:toTree(data.rows)});
+                    //reply({error:null, data:data.rows});
                 }
 
             });
@@ -312,6 +313,28 @@ function regUser(request, reply) {
         }
 
     });
+}
+function toTree(plain){
+    var tree = [];
+    plain.forEach(function(item){
+        if(!item.parent) tree.push(item);
+    });
+    tree.forEach(function(item){
+        item.childs = plain.filter(function(c1){
+            if(c1.parent == item.commentid) return c1;
+        });
+        item.childs.forEach(function(ch2){
+            ch2.childs = plain.filter(function(c2){
+                if(c2.parent == ch2.commentid) return c2;
+            });
+            ch2.childs.forEach(function(ch3){
+                ch3.childs = plain.filter(function(c3){
+                    if(c3.parent == ch3.commentid) return c3;
+                });
+            });
+        });
+    });
+    return tree;
 }
 
 

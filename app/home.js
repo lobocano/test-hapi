@@ -78,7 +78,7 @@ angular.module('testHapi')
         $scope.addMsg = (parent)=>{
             var comment={
                 owner: $scope.AuthService.user().userid,
-                message: $scope.message,
+                message: $scope.comment.message,
                 parent: parent ? parent : null
             };
             console.log('$scope.addMsg',comment);
@@ -87,7 +87,10 @@ angular.module('testHapi')
                 .then(function(result) {
                     console.log(result.data);
                     $scope.getMessages();
+                    $scope.comment.message = '';
+                    $scope.message='';
                     $scope.mode = 'list';
+
                     //$scope.$apply();
                 });
 
@@ -102,6 +105,7 @@ angular.module('testHapi')
                     }
                     else{
                         console.log(result.data.data);
+                        //$scope.messages = toTree(result.data.data);
                         $scope.messages = result.data.data;
                     }
 
@@ -109,5 +113,27 @@ angular.module('testHapi')
 
         };
         $scope.getMessages();
+        function toTree(plain){
+            var tree = [];
+            plain.forEach(function(item){
+                if(!item.parent) tree.push(item);
+            });
+            tree.forEach(function(item){
+                item.childs = plain.filter(function(c1){
+                    if(c1.parent == item.commentid) return c1;
+                });
+                item.childs.forEach(function(ch2){
+                    ch2.childs = plain.filter(function(c2){
+                        if(c2.parent == ch2.commentid) return c2;
+                    });
+                    ch2.childs.forEach(function(ch3){
+                        ch3.childs = plain.filter(function(c3){
+                            if(c3.parent == ch3.commentid) return c3;
+                        });
+                    });
+                });
+            });
+            return tree;
+        }
 
     }]);
