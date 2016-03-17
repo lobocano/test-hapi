@@ -49,6 +49,7 @@ angular.module('testHapi')
                     .then(function (result) {
                         console.log(result.data);
                         $scope.getMessages();
+                        $scope.comment.message = '';
                         $scope.mode = 'list';
                         //$scope.$apply();
                     });
