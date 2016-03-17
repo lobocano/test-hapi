@@ -14,6 +14,27 @@ var conString = "postgres://hapi:mensajero@localhost/testhapi";
 const server = new Hapi.Server();
 server.connection({port: 3041});
 
+server.register([
+    {
+        register: require('hapi-auth-cookie')
+    }
+], function (err) {
+    if (err) {
+        console.error('Failed to load a plugin:', err);
+        throw err;
+    }
+
+    // Set our server authentication strategy
+    server.auth.strategy('standard', 'cookie', {
+        password: 'ronmojitoronmojitoronmojitoronmojito', // cookie secret
+        cookie: 'test-hapi-cookie', // Cookie name
+        isHttpOnly: false,
+        isSecure: false, // required for non-https applications
+        ttl: 60 * 60 * 1000 // Set session to 1 hour
+    });
+
+});
+
 server.state('userdata', {
     ttl: 60 * 60 * 1000,
     isSecure: false,
@@ -77,6 +98,24 @@ server.route({
 
             var sql = 'update comments set message = $1 where commentid = $2';
             var params = [request.payload.message,request.payload.commentid];
+            execSql(sql,params,(msg)=>{
+                console.log(request.payload, msg);
+                reply(msg);
+            });
+
+        }
+
+    }
+});
+server.route({
+    method: 'delete',
+    path: '/api/message/{id}',
+    config:{
+        auth: {strategy: 'standard'},
+        handler: (request, reply)=>{
+            console.log('request.params.id',request.params.id);
+            var sql = 'delete from comments where commentid = $1';
+            var params = [request.params.id];
             execSql(sql,params,(msg)=>{
                 console.log(request.payload, msg);
                 reply(msg);
@@ -178,26 +217,6 @@ server.register(require('inert'), (err) => {
         throw err;
     }
     server.route({method: 'GET', path: '/{somethingss*}', config: staticConfig});
-
-});
-server.register([
-    {
-        register: require('hapi-auth-cookie')
-    }
-], function (err) {
-    if (err) {
-        console.error('Failed to load a plugin:', err);
-        throw err;
-    }
-
-    // Set our server authentication strategy
-    server.auth.strategy('standard', 'cookie', {
-        password: 'ronmojitoronmojitoronmojitoronmojito', // cookie secret
-        cookie: 'test-hapi-cookie', // Cookie name
-        isHttpOnly: false,
-        isSecure: false, // required for non-https applications
-        ttl: 60 * 60 * 1000 // Set session to 1 hour
-    });
 
 });
 server.route({

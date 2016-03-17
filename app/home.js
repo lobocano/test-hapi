@@ -2,48 +2,50 @@
  * Created by pablo on 16.03.16.
  */
 angular.module('testHapi')
-    .controller('HomeCtrl',['$scope','$location','$http','AuthService', function ($scope, $location, $http,AuthService) {
+    .controller('HomeCtrl', ['$scope', '$location', '$http', 'AuthService', function ($scope, $location, $http, AuthService) {
 
-        $scope.title='Home';
+        $scope.title = 'Home';
         $scope.mode = 'list';
-        $scope.comment = {message:''};
-        $scope.username = function(){
+        $scope.comment = {message: ''};
+        $scope.username = function () {
             return AuthService.user() ? AuthService.user().displayname : '';
         };
-        $scope.showEditButton=(owner)=>{
+        $scope.showEditButton = (owner)=> {
             return AuthService.isAuthenticated() && owner == AuthService.user().userid;
         };
-        console.log('$scope.username',$scope.username());
+        console.log('$scope.username', $scope.username());
         $scope.AuthService = AuthService;
-        $scope.test=()=>{
-            console.log('stored user',$scope.AuthService.user(), $scope.AuthService.isAuthenticated(), $scope.username());
+        $scope.test = ()=> {
+            console.log('stored user', $scope.AuthService.user(), $scope.AuthService.isAuthenticated(), $scope.username());
             //$scope.$apply();
         };
-        $scope.edit=(id,text)=>{
+        $scope.edit = (id, text)=> {
             $scope.mode = 'edit';
             $scope.isNew = text == '';
-            console.log(id,$scope.isNew);
+            console.log(id, $scope.isNew);
 
-            if($scope.isNew) {
+            if ($scope.isNew) {
                 $scope.comment.parent = id;
                 $scope.comment.message = '';
             }
-            else{
+            else {
                 $scope.comment.message = text;
                 $scope.comment.commentid = id;
-                if($scope.comment.parent) delete $scope.comment.parent;
+                if ($scope.comment.parent) delete $scope.comment.parent;
             }
         };
-        $scope.save=()=>{
-            if($scope.isNew){
+        $scope.save = ()=> {
+            if ($scope.isNew) {
                 $scope.message = $scope.comment.message;
                 $scope.addMsg($scope.comment.parent);
             }
-            else{
-                console.log('$scope.save',$scope.comment.message);
+            else {
+                console.log('$scope.save', $scope.comment.message);
                 $http.put('/api/message', $scope.comment)
-                    .error(function(err){console.log('error ',err)})
-                    .then(function(result) {
+                    .error(function (err) {
+                        console.log('error ', err)
+                    })
+                    .then(function (result) {
                         console.log(result.data);
                         $scope.getMessages();
                         $scope.mode = 'list';
@@ -55,16 +57,18 @@ angular.module('testHapi')
             //$scope.comment.message = '';
         };
 
-        $scope.cancel=()=>{
+        $scope.cancel = ()=> {
             $scope.mode = 'list';
             console.log($scope.mode);
             $scope.message = '';
         };
-        $scope.logout=()=>{
+        $scope.logout = ()=> {
             console.log('Logout');
             $http.get('/auth/logout')
-                .error(function(err){console.log('error ',err)})
-                .then(function(result) {
+                .error(function (err) {
+                    console.log('error ', err)
+                })
+                .then(function (result) {
                     console.log(result.data);
                     $scope.AuthService.removeUser();
                     //alert(result.data);
@@ -73,37 +77,60 @@ angular.module('testHapi')
 
         };
 
-        $scope.message='';
+        $scope.message = '';
         $scope.messages = [];
-        $scope.addMsg = (parent)=>{
-            var comment={
+        $scope.addMsg = (parent)=> {
+            var comment = {
                 owner: $scope.AuthService.user().userid,
                 message: $scope.comment.message,
                 parent: parent ? parent : null
             };
-            console.log('$scope.addMsg',comment);
+            console.log('$scope.addMsg', comment);
             $http.post('/api/message', comment)
-                .error(function(err){console.log('error ',err)})
-                .then(function(result) {
+                .error(function (err) {
+                    console.log('error ', err)
+                })
+                .then(function (result) {
                     console.log(result.data);
                     $scope.getMessages();
                     $scope.comment.message = '';
-                    $scope.message='';
+                    $scope.message = '';
                     $scope.mode = 'list';
 
                     //$scope.$apply();
                 });
 
         };
-        $scope.getMessages = ()=>{
-            $http.get('/api/messages')
-                .error(function(err){console.log('error ',err)})
-                .then(function(result) {
+        $scope.remove = (id)=> {
+            console.log('remove', id);
+            $http.delete('/api/message/' + id)
+                .error(function (err) {
+                    console.log('error ', err)
+                })
+                .then(function (result) {
 
-                    if(result.data.error){
+                    if (result.data.error) {
                         console.log(result.data.error);
                     }
-                    else{
+                    else {
+                        $scope.getMessages();
+                    }
+
+                });
+
+
+        };
+        $scope.getMessages = ()=> {
+            $http.get('/api/messages')
+                .error(function (err) {
+                    console.log('error ', err)
+                })
+                .then(function (result) {
+
+                    if (result.data.error) {
+                        console.log(result.data.error);
+                    }
+                    else {
                         console.log(result.data.data);
                         //$scope.messages = toTree(result.data.data);
                         $scope.messages = result.data.data;
@@ -113,22 +140,22 @@ angular.module('testHapi')
 
         };
         $scope.getMessages();
-        function toTree(plain){
+        function toTree(plain) {
             var tree = [];
-            plain.forEach(function(item){
-                if(!item.parent) tree.push(item);
+            plain.forEach(function (item) {
+                if (!item.parent) tree.push(item);
             });
-            tree.forEach(function(item){
-                item.childs = plain.filter(function(c1){
-                    if(c1.parent == item.commentid) return c1;
+            tree.forEach(function (item) {
+                item.childs = plain.filter(function (c1) {
+                    if (c1.parent == item.commentid) return c1;
                 });
-                item.childs.forEach(function(ch2){
-                    ch2.childs = plain.filter(function(c2){
-                        if(c2.parent == ch2.commentid) return c2;
+                item.childs.forEach(function (ch2) {
+                    ch2.childs = plain.filter(function (c2) {
+                        if (c2.parent == ch2.commentid) return c2;
                     });
-                    ch2.childs.forEach(function(ch3){
-                        ch3.childs = plain.filter(function(c3){
-                            if(c3.parent == ch3.commentid) return c3;
+                    ch2.childs.forEach(function (ch3) {
+                        ch3.childs = plain.filter(function (c3) {
+                            if (c3.parent == ch3.commentid) return c3;
                         });
                     });
                 });
