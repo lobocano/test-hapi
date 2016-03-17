@@ -8,7 +8,11 @@ angular.module('testHapi')
         var client = new nes.Client('ws://localhost:3041');
         client.connect(function (err) {
             console.log('connected');
+            $scope.getNesMessages();
 
+        });
+        console.log(nes);
+        $scope.getNesMessages = ()=>{
             client.request('messages', function (err, payload) {   // Can also request '/api/nes/comments'
                 if(err) console.log('error',err);
                 else {
@@ -18,8 +22,7 @@ angular.module('testHapi')
                 }
                 // payload -> 'world!'
             });
-        });
-        console.log(nes);
+        };
         $scope.title = 'Home';
         $scope.mode = 'list';
         $scope.comment = {message: ''};
@@ -64,7 +67,7 @@ angular.module('testHapi')
                     })
                     .then(function (result) {
                         console.log(result.data);
-                        $scope.getMessages();
+                        $scope.getNesMessages();
                         $scope.comment.message = '';
                         $scope.mode = 'list';
                         //$scope.$apply();
@@ -110,7 +113,7 @@ angular.module('testHapi')
                 })
                 .then(function (result) {
                     console.log(result.data);
-                    $scope.getMessages();
+                    $scope.getNesMessages();
                     $scope.comment.message = '';
                     $scope.message = '';
                     $scope.mode = 'list';
@@ -131,14 +134,14 @@ angular.module('testHapi')
                         console.log(result.data.error);
                     }
                     else {
-                        $scope.getMessages();
+                        $scope.getNesMessages();
                     }
 
                 });
 
 
         };
-        $scope.getMessages = ()=> {
+        $scope.getNesMessages = ()=> {
             $http.get('/api/messages')
                 .error(function (err) {
                     console.log('error ', err);
@@ -158,7 +161,7 @@ angular.module('testHapi')
                 });
 
         };
-        //$scope.getMessages();
+        //$scope.getNesMessages();
         function toTree(plain) {
             var tree = [];
             plain.forEach(function (item) {
