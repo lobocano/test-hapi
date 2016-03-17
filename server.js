@@ -45,7 +45,7 @@ server.state('userdata', {
     clearInvalid: false, // remove invalid cookies
     strictHeader: true // don't allow violations of RFC 6265
 });
-/*server.register(Nes, function (err) {
+server.register(Nes, function (err) {
 
     server.route({
         method: 'GET',
@@ -58,8 +58,7 @@ server.state('userdata', {
         }
     });
 
-    server.start(function (err) { /!* ... *!/ });
-});*/
+});
 server.route({
     method: 'POST',
     path: '/auth/register',
