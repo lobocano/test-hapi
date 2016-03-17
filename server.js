@@ -9,6 +9,7 @@ const Path = require('path');
 const Joi = require('joi');
 var pg = require('pg');
 var conString = "postgres://hapi:mensajero@localhost/testhapi";
+var Nes = require('nes');
 
 
 const server = new Hapi.Server();
@@ -44,7 +45,21 @@ server.state('userdata', {
     clearInvalid: false, // remove invalid cookies
     strictHeader: true // don't allow violations of RFC 6265
 });
+/*server.register(Nes, function (err) {
 
+    server.route({
+        method: 'GET',
+        path: '/api/nes/comments',
+        config: {
+            handler: function (request, reply) {
+
+                return reply('OK');
+            }
+        }
+    });
+
+    server.start(function (err) { /!* ... *!/ });
+});*/
 server.route({
     method: 'POST',
     path: '/auth/register',
