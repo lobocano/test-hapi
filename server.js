@@ -64,6 +64,7 @@ server.route({
     method: 'POST',
     path: '/api/message',
     config:{
+        auth: {strategy: 'standard'},
         validate: {
             payload: {
                 message: Joi.string().min(1).max(200).required(),
@@ -88,6 +89,7 @@ server.route({
     method: 'PUT',
     path: '/api/message',
     config:{
+        auth: {strategy: 'standard'},
         validate: {
             payload: {
                 message: Joi.string().min(1).max(200).required(),
@@ -113,7 +115,7 @@ server.route({
     config:{
         auth: {strategy: 'standard'},
         handler: (request, reply)=>{
-            console.log('request.params.id',request.params.id);
+            //console.log('request.params.id',request.params.id);
             var sql = 'delete from comments where commentid = $1';
             var params = [request.params.id];
             execSql(sql,params,(msg)=>{
@@ -235,17 +237,6 @@ server.route({
                 return reply('Not logged in!');
             }
 
-        }
-    }
-});
-server.route({
-    method: 'GET',
-    path: '/api/user',
-    config:{
-        auth: {strategy: 'standard',mode:'try'},
-        handler: function (request, reply) {
-            var u = {name: 'qq'};
-            reply(u);
         }
     }
 });
