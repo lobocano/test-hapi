@@ -13,6 +13,7 @@ var conString = "postgres://hapi:mensajero@localhost/testhapi";
 
 const server = new Hapi.Server();
 server.connection({port: 3041});
+const cache = server.cache({ segment: 'testhapi', expiresIn: 24 * 60 * 60 * 1000 });
 
 server.register([
     {
@@ -30,7 +31,7 @@ server.register([
         cookie: 'test-hapi-cookie', // Cookie name
         isHttpOnly: false,
         isSecure: false, // required for non-https applications
-        ttl: 60 * 60 * 1000 // Set session to 1 hour
+        ttl: 24 * 60 * 60 * 1000 // Set session to 1 day
     });
 
 });
@@ -97,13 +98,27 @@ server.route({
             }
         },
         handler: (request, reply)=>{
+            cache.get('currentuser', (err, value, cached, log) => {
+                if(err){
+                    console.log('cache error',err);
+                    reply('cache error',err);
+                    return;
+                }
+                if(value.userid != request.payload.owner) {
+                    console.log('Current not owner!');
+                    return reply('Access denied!');
+                }
+                //console.log('currentuser', value.userid);
+                var sql = 'update comments set message = $1 where commentid = $2';
+                var params = [request.payload.message,request.payload.commentid];
+                execSql(sql,params,(msg)=>{
+                    //console.log(request.payload, msg);
+                    reply(msg);
+                });
 
-            var sql = 'update comments set message = $1 where commentid = $2';
-            var params = [request.payload.message,request.payload.commentid];
-            execSql(sql,params,(msg)=>{
-                console.log(request.payload, msg);
-                reply(msg);
             });
+            //var cc = request.cookieAuth;
+            //console.log('request.cookieAuth',cc);
 
         }
 
@@ -115,13 +130,21 @@ server.route({
     config:{
         auth: {strategy: 'standard'},
         handler: (request, reply)=>{
-            //console.log('request.params.id',request.params.id);
-            var sql = 'delete from comments where commentid = $1';
-            var params = [request.params.id];
-            execSql(sql,params,(msg)=>{
-                console.log(request.payload, msg);
-                reply(msg);
+            cache.get('currentuser', (err, value, cached, log) => {
+                if (err) {
+                    console.log('cache error', err);
+                    reply('cache error', err);
+                    return;
+                }
+                var sql = 'delete from comments where commentid = $1 and owner = $2';
+                var params = [request.params.id, value.userid];
+                execSql(sql,params,(msg)=>{
+                    console.log(request.payload, msg);
+                    reply(msg);
+                });
+
             });
+                //console.log('request.params.id',request.params.id);
 
         }
 
@@ -185,6 +208,10 @@ server.route({
                                 displayname: usr.displayname
                             };
                             request.cookieAuth.set(minUserData);
+                            cache.set('currentuser', minUserData, null, (err) => {
+
+
+                            });
                             //console.log(minUserData);
                             reply({status:'OK', user: minUserData});
                         }
