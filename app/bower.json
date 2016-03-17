@@ -20,6 +20,7 @@
     "angular-route": "~1.5.0",
     "angular-material": "~1.0.6",
     "angular-cookies": "~1.5.0",
-    "angular-local-storage": "~0.2.7"
+    "angular-local-storage": "~0.2.7",
+    "nes": "~4.0.0"
   }
 }
