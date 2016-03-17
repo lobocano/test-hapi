@@ -53,8 +53,19 @@ server.register(Nes, function (err) {
         config: {
             id: 'messages',
             handler: function (request, reply) {
+                var sql = 'select c.*, u.displayname from comments c join users u on c.owner = u.userid order by posttime desc';
+                querySql(sql,null,(err, data)=>{
+                    if(err){
+                        console.log(err);
+                        reply({error:err,data:null});
+                    }
+                    else{
+                        reply({error:null, data:toTree(data.rows)});
+                        //reply({error:null, data:data.rows});
+                    }
 
-                return reply('OK');
+                });
+
             }
         }
     });

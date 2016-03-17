@@ -4,14 +4,18 @@
 angular.module('testHapi')
     .controller('HomeCtrl', ['$scope', '$location', '$http', 'AuthService', function ($scope, $location, $http, AuthService) {
 
-
+        $scope.messages = [];
         var client = new nes.Client('ws://localhost:3041');
         client.connect(function (err) {
             console.log('connected');
 
             client.request('messages', function (err, payload) {   // Can also request '/api/nes/comments'
                 if(err) console.log('error',err);
-                else console.log('request',payload);
+                else {
+                    $scope.messages = payload.data;
+                    console.log('request',$scope.messages);
+                    $scope.$apply();
+                }
                 // payload -> 'world!'
             });
         });
@@ -92,7 +96,7 @@ angular.module('testHapi')
         };
 
         $scope.message = '';
-        $scope.messages = [];
+
         $scope.addMsg = (parent)=> {
             var comment = {
                 owner: $scope.AuthService.user().userid,
@@ -137,7 +141,7 @@ angular.module('testHapi')
         $scope.getMessages = ()=> {
             $http.get('/api/messages')
                 .error(function (err) {
-                    console.log('error ', err)
+                    console.log('error ', err);
                 })
                 .then(function (result) {
 
@@ -148,12 +152,13 @@ angular.module('testHapi')
                         console.log(result.data.data);
                         //$scope.messages = toTree(result.data.data);
                         $scope.messages = result.data.data;
+                        console.log('messages ', $scope.messages);
                     }
 
                 });
 
         };
-        $scope.getMessages();
+        //$scope.getMessages();
         function toTree(plain) {
             var tree = [];
             plain.forEach(function (item) {
