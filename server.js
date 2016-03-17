@@ -51,6 +51,7 @@ server.register(Nes, function (err) {
         method: 'GET',
         path: '/api/nes/comments',
         config: {
+            id: 'messages',
             handler: function (request, reply) {
 
                 return reply('OK');

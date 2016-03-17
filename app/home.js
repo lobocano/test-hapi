@@ -4,6 +4,18 @@
 angular.module('testHapi')
     .controller('HomeCtrl', ['$scope', '$location', '$http', 'AuthService', function ($scope, $location, $http, AuthService) {
 
+
+        var client = new nes.Client('ws://localhost:3041');
+        client.connect(function (err) {
+            console.log('connected');
+
+            client.request('messages', function (err, payload) {   // Can also request '/api/nes/comments'
+                if(err) console.log('error',err);
+                else console.log('request',payload);
+                // payload -> 'world!'
+            });
+        });
+        console.log(nes);
         $scope.title = 'Home';
         $scope.mode = 'list';
         $scope.comment = {message: ''};
