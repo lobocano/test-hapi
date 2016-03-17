@@ -19,7 +19,7 @@ angular.module('testHapi')
             console.log('stored user', $scope.AuthService.user(), $scope.AuthService.isAuthenticated(), $scope.username());
             //$scope.$apply();
         };
-        $scope.edit = (id, text)=> {
+        $scope.edit = (id, text,owner)=> {
             $scope.mode = 'edit';
             $scope.isNew = text == '';
             console.log(id, $scope.isNew);
@@ -31,6 +31,7 @@ angular.module('testHapi')
             else {
                 $scope.comment.message = text;
                 $scope.comment.commentid = id;
+                $scope.comment.owner = owner;
                 if ($scope.comment.parent) delete $scope.comment.parent;
             }
         };

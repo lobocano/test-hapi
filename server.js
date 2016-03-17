@@ -94,7 +94,8 @@ server.route({
         validate: {
             payload: {
                 message: Joi.string().min(1).max(200).required(),
-                commentid: Joi.number().required()
+                commentid: Joi.number().required(),
+                owner: Joi.number().required()
             }
         },
         handler: (request, reply)=>{
@@ -105,7 +106,7 @@ server.route({
                     return;
                 }
                 if(value.userid != request.payload.owner) {
-                    console.log('Current not owner!');
+                    console.log('Current not owner!',value.userid,request.payload.owner);
                     return reply('Access denied!');
                 }
                 //console.log('currentuser', value.userid);
