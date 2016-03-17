@@ -6,10 +6,10 @@ angular.module('testHapi')
         
         $scope.title='Register form';
         $scope.user = {
-            email:'test@mail.ru',
-            displayname:'Test',
-            password:'123',
-            password2:'123'
+            email:'',
+            displayname:'',
+            password:'',
+            password2:''
         };
         $scope.register=()=>{
             console.log('Register',$scope.user);

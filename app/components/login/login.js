@@ -6,8 +6,8 @@ angular.module('testHapi')
 
         $scope.title = 'Login form';
         $scope.user = {
-            email: 'test@mail.ru',
-            password: '123'
+            email: '',
+            password: ''
         };
 
         $scope.login = ()=> {
