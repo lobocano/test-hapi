@@ -9,6 +9,16 @@ angular.module('testHapi')
         client.connect(function (err) {
             console.log('connected');
             $scope.getNesMessages();
+            var handler = function (update) {
+                console.log(update);
+                $scope.socketMsg = update.time;
+                // update -> { id: 5, status: 'complete' }
+                // Second publish is not received (doesn't match)
+            };
+
+            client.subscribe('/ws/test/5', handler, function (err) {
+                if(err) console.log('/ws/test/5',err)
+            });
 
         });
         console.log(nes);

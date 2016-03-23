@@ -68,7 +68,12 @@ server.register(Nes, function (err) {
 
             }
         }
-    });
+    })
+    server.subscription('/ws/test/{id}')
+    var client_id = 5;
+    setInterval(()=>{
+        server.publish('/api/calendar/reminder/' + client_id, { id: client_id, time: new Date() })
+    },3000)
 
 });
 server.route({
