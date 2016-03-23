@@ -69,10 +69,10 @@ server.register(Nes, function (err) {
             }
         }
     })
-    server.subscription('/ws/test/{id}')
+    server.subscription('/api/calendar/reminder/{id}')
     var client_id = 5;
     setInterval(()=>{
-        server.publish('/api/calendar/reminder/' + client_id, { id: client_id, time: new Date() })
+        server.publish('/api/calendar/reminder/5', { id: client_id, time: new Date() })
     },3000)
 
 });

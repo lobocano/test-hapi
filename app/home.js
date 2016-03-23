@@ -5,6 +5,7 @@ angular.module('testHapi')
     .controller('HomeCtrl', ['$scope', '$location', '$http', 'AuthService', function ($scope, $location, $http, AuthService) {
 
         $scope.messages = [];
+        $scope.socketMsg = '';
         var client = new nes.Client('ws://localhost:3041');
         client.connect(function (err) {
             console.log('connected');
@@ -12,12 +13,13 @@ angular.module('testHapi')
             var handler = function (update) {
                 console.log(update);
                 $scope.socketMsg = update.time;
+                $scope.$apply();
                 // update -> { id: 5, status: 'complete' }
                 // Second publish is not received (doesn't match)
             };
 
-            client.subscribe('/ws/test/5', handler, function (err) {
-                if(err) console.log('/ws/test/5',err)
+            client.subscribe('/api/calendar/reminder/5', handler, function (err) {
+                if(err) console.log('reminder',err)
             });
 
         });
