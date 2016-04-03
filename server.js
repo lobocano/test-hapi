@@ -10,6 +10,7 @@ const Joi = require('joi');
 var pg = require('pg');
 var conString = "postgres://hapi:mensajero@localhost/testhapi";
 var Nes = require('nes');
+const Promise = require('bluebird');
 
 
 const server = new Hapi.Server();
@@ -76,6 +77,15 @@ server.register(Nes, function (err) {
     },3000)
 
 });
+
+server.route({
+    method: 'GET',
+    path: '/api/test',
+    handler:(req,reply)=>{
+        reply('OK')
+    }
+});
+
 server.route({
     method: 'POST',
     path: '/auth/register',

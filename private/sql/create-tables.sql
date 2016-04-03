@@ -18,3 +18,12 @@ CREATE TABLE comments
     parent int,
     CONSTRAINT comments_users_username_fk FOREIGN KEY (owner) REFERENCES users (userid)
 );
+CREATE TABLE tests
+(
+    commentid SERIAL NOT NULL PRIMARY KEY,
+    owner int,
+    posttime TIMESTAMP,
+    message TEXT,
+    parent int,
+    CONSTRAINT comments_users_username_fk FOREIGN KEY (owner) REFERENCES users (userid)
+);
