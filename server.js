@@ -1,18 +1,20 @@
-/**
- * Created by pablo on 14.03.16.
- */
 'use strict';
 
 const Hapi = require('hapi');
 const Good = require('good');
 const Path = require('path');
 const Joi = require('joi');
+const bole = require('bole')
 var pg = require('pg');
 var conString = "postgres://hapi:mensajero@localhost/testhapi";
 var Nes = require('nes');
 const Promise = require('bluebird');
 
-
+bole.output({
+    level: 'info',
+    stream: process.stdout,
+})
+const log = bole('index')
 const server = new Hapi.Server();
 server.connection({port: 3041});
 const cache = server.cache({ segment: 'testhapi', expiresIn: 24 * 60 * 60 * 1000 });
@@ -23,7 +25,7 @@ server.register([
     }
 ], function (err) {
     if (err) {
-        console.error('Failed to load a plugin:', err);
+        log.error('Failed to load a plugin:', err);
         throw err;
     }
 

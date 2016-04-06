@@ -9,6 +9,7 @@
   "author": "paolo",
   "license": "ISC",
   "dependencies": {
+    "arangojs": "^4.3.0",
     "blipp": "^2.3.0",
     "bluebird": "^3.3.4",
     "bole": "^2.0.0",
