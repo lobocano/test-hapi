@@ -5,10 +5,27 @@ const Glue = require('glue'),
     nconf = require('nconf'),
     Path = require('path'),
     Bluebird = require('bluebird')
+const stream = require('stream');
+const arangojs = require('arangojs');
+var ar = new arangojs.Database();
+var logCollection = ar.collection('logs');
+logCollection.create()
 
+class DbStream extends stream.Writable {
+    _write(chunk, enc, next) {
+        var rec = JSON.parse(chunk.toString());
+        //console.log(rec);
+        logCollection.save(rec)
+            .then(info => {
+                
+            }, err => console.error(err.stack));
+        next();
+    }
+}
+var dbStream = new DbStream()
 bole.output({
     level: 'info',
-    stream: process.stdout,
+    stream: dbStream,
 })
 const log = bole('index')
 
