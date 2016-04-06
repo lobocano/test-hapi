@@ -9,12 +9,21 @@ var pg = require('pg');
 var conString = "postgres://hapi:mensajero@localhost/testhapi";
 var Nes = require('nes');
 const Promise = require('bluebird');
+const stream = require('stream');
 
+class DbStream extends stream.Writable {
+    _write(chunk, enc, next) {
+        console.log(JSON.parse(chunk.toString()));
+        next();
+    }
+}
+var dbStream = new DbStream()
 bole.output({
     level: 'info',
-    stream: process.stdout,
+    stream: dbStream,
 })
 const log = bole('index')
+log.info('log started')
 const server = new Hapi.Server();
 server.connection({port: 3041});
 const cache = server.cache({ segment: 'testhapi', expiresIn: 24 * 60 * 60 * 1000 });
